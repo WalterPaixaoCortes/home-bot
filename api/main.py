@@ -2,14 +2,40 @@
 """
     Simple API
 """
-import base64
+import os
 import json
 from time import time
-from mangum import Mangum
 
 import uvicorn
+import requests
+
+from mangum import Mangum
 from fastapi import FastAPI, Request
 from fastapi.middleware.gzip import GZipMiddleware
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def send_message(version, to_phone, wa_id, user_token, template_name, params):
+    url = f"https://graph.facebook.com/{version}/{to_phone}/messages"
+    payload = json.dumps(
+        {
+            "messaging_product": "whatsapp",
+            "to": f"{wa_id}",
+            "type": "template",
+            "template": {
+                "name": template_name,
+                "language": {"code": "pt_BR"},
+                "components": [{"type": "header", "parameters": [{"type": "text", "text": "Lurdes"}]}],
+            },
+        }
+    )
+    headers = {"Authorization": f"Bearer {user_token}", "Content-Type": "application/json"}
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    print(response.text)
 
 
 app = FastAPI(title="API Model")
@@ -46,6 +72,24 @@ async def get_webhook(request: Request):
     if params and "hub.mode" in params and params["hub.mode"] == "subscribe":
         return int(params["hub.challenge"])
     return {"status": "OK", "headers": request.headers, "body": raw, "parameters": params}
+
+
+@app.post("/webhook", tags=["Version 1"])
+async def post_webhook(request: Request):
+    try:
+        raw = await request.json()
+    except:
+        raw = None
+
+    if raw and raw["entry"][0]["changes"][0]["field"] == "messages":
+        send_message(
+            os.environ["aws_version"],
+            os.environ["aws_appid"],
+            raw["entry"][0]["changes"][0]["value"]["metadata"]["display_phone_number"],
+            os.environ["aws_token"],
+        )
+        return None
+    return None
 
 
 handler = Mangum(app)
