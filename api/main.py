@@ -87,8 +87,10 @@ async def post_webhook(request: Request):
             os.environ["aws_appid"],
             raw["entry"][0]["changes"][0]["value"]["metadata"]["display_phone_number"],
             os.environ["aws_token"],
+            "mensagem",
+            f'Você disse: {raw["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]}',
         )
-        return None
+        return {"status": "message sent"}
     return None
 
 
