@@ -11,10 +11,9 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.gzip import GZipMiddleware
 
+
 app = FastAPI(title="API Model")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
-
-handler = Mangum(app)
 
 
 @app.middleware("http")
@@ -34,9 +33,11 @@ async def get_main():
 
 @app.get("/webhook", tags=["Version 1"])
 async def get_webhook(request: Request):
-    print(request.json)
-    return request.json
+    raw = await request.json()
+    return {"status": "OK", "headers": request.headers, "body": raw}
 
+
+handler = Mangum(app)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, debug=True)
