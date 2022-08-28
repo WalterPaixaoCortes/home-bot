@@ -37,7 +37,7 @@ async def get_webhook(request: Request):
         raw = await request.json()
     except:
         raw = None
-    return {"status": "OK", "headers": request.headers, "body": raw}
+    return {"status": "OK", "headers": request.headers, "body": raw, "parameters": request.query_params}
 
 
 handler = Mangum(app)
