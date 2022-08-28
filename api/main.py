@@ -35,10 +35,14 @@ async def get_main():
 async def get_webhook(request: Request):
     try:
         raw = await request.json()
-        params = request.query_params
     except:
         raw = None
+
+    try:
+        params = request.query_params
+    except:
         params = None
+
     if params and "hub.mode" in params and params["hub.mode"] == "subscribe":
         return int(params["hub.challenge"])
     return {"status": "OK", "headers": request.headers, "body": raw, "parameters": params}
