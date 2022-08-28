@@ -33,7 +33,10 @@ async def get_main():
 
 @app.get("/webhook", tags=["Version 1"])
 async def get_webhook(request: Request):
-    raw = await request.json()
+    try:
+        raw = await request.json()
+    except:
+        raw = None
     return {"status": "OK", "headers": request.headers, "body": raw}
 
 
