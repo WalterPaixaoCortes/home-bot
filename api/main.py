@@ -33,7 +33,7 @@ async def get_main():
 
 
 @app.get("/webhook", tags=["Version 1"])
-async def get_main(request: Request):
+async def get_webhook(request: Request):
     print(request.json)
     return request.json
 
