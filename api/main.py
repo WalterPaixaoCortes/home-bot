@@ -19,6 +19,10 @@ load_dotenv()
 
 def send_message(version, to_phone, wa_id, user_token, template_name, params):
     url = f"https://graph.facebook.com/{version}/{to_phone}/messages"
+    ori_tpl_params = [{"type": "text", "text": None}]
+    for idx, item in enumerate(params):
+        ori_tpl_params[idx]["text"] = item
+
     payload = json.dumps(
         {
             "messaging_product": "whatsapp",
@@ -27,7 +31,7 @@ def send_message(version, to_phone, wa_id, user_token, template_name, params):
             "template": {
                 "name": template_name,
                 "language": {"code": "pt_BR"},
-                "components": [{"type": "header", "parameters": [{"type": "text", "text": "Lurdes"}]}],
+                "components": [{"type": "header", "parameters": ori_tpl_params}],
             },
         }
     )
@@ -88,7 +92,7 @@ async def post_webhook(request: Request):
             raw["entry"][0]["changes"][0]["value"]["metadata"]["display_phone_number"],
             os.environ["aws_token"],
             "mensagem",
-            f'Você disse: {raw["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]}',
+            [f'Você disse: {raw["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]}'],
         )
         return {"status": "message sent"}
     return None
