@@ -85,6 +85,10 @@ async def post_webhook(request: Request):
     except:
         raw = None
 
+    message = 'Nada...'
+    if raw and 'message' in raw["entry"][0]["changes"][0]["value"]:
+      message = f'Você disse: {raw["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]}'
+    
     if raw and raw["entry"][0]["changes"][0]["field"] == "messages":
         send_message(
             os.environ["aws_version"],
@@ -92,7 +96,7 @@ async def post_webhook(request: Request):
             raw["entry"][0]["changes"][0]["value"]["metadata"]["display_phone_number"],
             os.environ["aws_token"],
             "mensagem",
-            [f'Você disse: {raw["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]}'],
+            [message],
         )
         return {"status": "message sent"}
     return None
