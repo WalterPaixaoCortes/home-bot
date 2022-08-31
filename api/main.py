@@ -103,7 +103,7 @@ async def post_webhook(request: Request):
         send_message(
             os.environ["aws_version"],
             os.environ["aws_appid"],
-            raw["entry"][0]["changes"][0]["value"]["metadata"]["display_phone_number"],
+            raw["entry"][0]["changes"][0]["value"]["contacts"][0]["wa_id"],
             os.environ["aws_token"],
             "mensagem",
             [message],
