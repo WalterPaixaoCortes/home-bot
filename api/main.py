@@ -23,6 +23,9 @@ logger.setLevel(logging.INFO)
 
 def send_message(version, to_phone, wa_id, user_token, template_name, params):
     url = f"https://graph.facebook.com/{version}/{to_phone}/messages"
+    logger.info(version)
+    logger.info(to_phone)
+    logger.info(wa_id)
     ori_tpl_params = []
     for idx, item in enumerate(params):
         ori_tpl_params.append({"type": "text", "text": item})
@@ -39,6 +42,7 @@ def send_message(version, to_phone, wa_id, user_token, template_name, params):
             },
         }
     )
+    logger.info(payload)
     headers = {"Authorization": f"Bearer {user_token}", "Content-Type": "application/json"}
 
     response = requests.request("POST", url, headers=headers, data=payload)
