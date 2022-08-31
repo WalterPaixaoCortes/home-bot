@@ -2,6 +2,7 @@
 """
     Simple API
 """
+import logging
 import os
 import json
 from time import time
@@ -16,12 +17,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 
 def send_message(version, to_phone, wa_id, user_token, template_name, params):
     url = f"https://graph.facebook.com/{version}/{to_phone}/messages"
-    ori_tpl_params = [{"type": "text", "text": None}]
+    ori_tpl_params = []
     for idx, item in enumerate(params):
-        ori_tpl_params[idx]["text"] = item
+        ori_tpl_params.append({"type": "text", "text": item})
 
     payload = json.dumps(
         {
@@ -85,10 +89,12 @@ async def post_webhook(request: Request):
     except:
         raw = None
 
-    message = 'Nada...'
-    if raw and 'message' in raw["entry"][0]["changes"][0]["value"]:
-      message = f'Você disse: {raw["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]}'
-    
+    logger.info(raw)
+
+    message = "Nada..."
+    if raw and "messages" in raw["entry"][0]["changes"][0]["value"]:
+        message = f'Você disse: {raw["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]}'
+
     if raw and raw["entry"][0]["changes"][0]["field"] == "messages":
         send_message(
             os.environ["aws_version"],
